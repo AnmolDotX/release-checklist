@@ -7,7 +7,8 @@ import { useHealthQuery } from '../../hooks/useReleases';
 export default function HealthPage() {
   const { data, isLoading, isError, error, refetch, isFetching } = useHealthQuery();
 
-  const isHealthy = data?.status === 'healthy' && data?.database === 'connected';
+  const isHealthy = data?.status === 'healthy' || data?.status === 'ok';
+  const isDbConnected = data?.database === 'connected' || (data?.status === 'ok' && data?.database !== 'disconnected');
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col items-center py-10 px-4">
@@ -57,13 +58,13 @@ export default function HealthPage() {
                   <h3 className="font-bold text-base">
                     {isHealthy ? 'All Systems Operational' : 'System Degraded / Waking Up'}
                   </h3>
-                  <p className="text-xs opacity-80 mt-0.5">{data?.message}</p>
+                  <p className="text-xs opacity-80 mt-0.5">{data?.message || 'Server responding cleanly.'}</p>
                 </div>
               </div>
               <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full ${
                 isHealthy ? 'bg-emerald-200 text-emerald-800' : 'bg-amber-200 text-amber-800'
               }`}>
-                {data?.status}
+                {data?.status || 'OK'}
               </span>
             </div>
 
@@ -71,8 +72,8 @@ export default function HealthPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
                 <span className="text-xs font-medium text-slate-500 block mb-1">Database Connection</span>
-                <span className={`font-semibold text-sm ${data?.database === 'connected' ? 'text-emerald-600' : 'text-amber-600'}`}>
-                  {data?.database === 'connected' ? '🟢 Connected' : '🟡 Disconnected / Spinning Up'}
+                <span className={`font-semibold text-sm ${isDbConnected ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {isDbConnected ? '🟢 Connected' : '🟡 Disconnected / Spinning Up'}
                 </span>
               </div>
 
@@ -86,7 +87,7 @@ export default function HealthPage() {
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
                 <span className="text-xs font-medium text-slate-500 block mb-1">Server Uptime</span>
                 <span className="font-semibold text-sm text-slate-800">
-                  ⏱️ {data?.uptimeSeconds !== undefined ? `${data.uptimeSeconds} seconds` : 'N/A'}
+                  ⏱️ {data?.uptimeSeconds !== undefined ? `${data.uptimeSeconds}s` : 'Active'}
                 </span>
               </div>
             </div>
