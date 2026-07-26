@@ -78,7 +78,7 @@ docker compose up --build
 This will automatically:
 1. Spin up a MySQL container (`mysql:8.4` LTS) on port `3306` with database `release_check`.
 2. Run `init.sql` to initialize schema and seed default data.
-3. Build and launch the Express TypeScript backend container on `http://localhost:5000`.
+3. Build and launch the Express TypeScript backend container on `http://localhost:8000`.
 
 ### Option 2: Run Client (Next.js SPA)
 
