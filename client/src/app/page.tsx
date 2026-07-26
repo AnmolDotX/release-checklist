@@ -138,7 +138,13 @@ export default function Home() {
       {/* Container Card */}
       <div className="w-full max-w-4xl bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         {isLoadingReleases ? (
-          <div className="p-12 text-center text-slate-500 text-sm">Loading releases...</div>
+          <div className="p-12 text-center text-slate-500 text-sm flex flex-col items-center justify-center gap-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <p className="font-medium text-slate-700">Loading releases...</p>
+            <p className="text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200">
+              ⚡ Note: Initial load may take up to 10-15 seconds as free tier Aiven DB spins down due to inactivity.
+            </p>
+          </div>
         ) : currentView === 'list' ? (
           <ReleaseList
             releases={releases}
