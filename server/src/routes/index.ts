@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import releaseRoutes from './releaseRoutes';
 import stepRoutes from './stepRoutes';
+import { getHealthCheck } from '../controllers/healthController';
+import { asyncHandler } from '../middleware/errorHandler';
 
 const apiRouter = Router();
 
-// Health check endpoint
-apiRouter.get('/health', (req: any, res: any) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// Health & System Uptime Check Endpoint
+apiRouter.get('/health', asyncHandler(getHealthCheck));
 
 // Sub-routes
 apiRouter.use('/releases', releaseRoutes);
