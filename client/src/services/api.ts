@@ -1,7 +1,16 @@
 import { Release, Step, CreateReleaseInput, UpdateReleaseInput } from '../types/release';
 import { computeStatus } from '../utils/formatters';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+function getApiBaseUrl(): string {
+  let rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  rawUrl = rawUrl.trim().replace(/\/+$/, '');
+  if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+    rawUrl = `https://${rawUrl}`;
+  }
+  return rawUrl;
+}
+
+const API_BASE = getApiBaseUrl();
 
 const DEFAULT_STEPS: Step[] = [
   { id: 'step-1', name: 'All relevant GitHub pull requests have been merged' },

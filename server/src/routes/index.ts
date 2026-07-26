@@ -1,11 +1,11 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import releaseRoutes from './releaseRoutes';
 import stepRoutes from './stepRoutes';
 
 const apiRouter = Router();
 
 // Health check endpoint
-apiRouter.get('/health', (req: Request, res: Response) => {
+apiRouter.get('/health', (req: any, res: any) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
