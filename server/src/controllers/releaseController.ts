@@ -1,4 +1,3 @@
-import { Request, Response } from 'express';
 import {
   getAllReleases,
   getReleaseById,
@@ -7,12 +6,12 @@ import {
   deleteRelease
 } from '../services/releaseService';
 
-export async function getReleases(req: Request, res: Response): Promise<void> {
+export async function getReleases(req: any, res: any): Promise<void> {
   const releases = await getAllReleases();
   res.json(releases);
 }
 
-export async function getRelease(req: Request, res: Response): Promise<void> {
+export async function getRelease(req: any, res: any): Promise<void> {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: 'Invalid release ID' });
@@ -28,7 +27,7 @@ export async function getRelease(req: Request, res: Response): Promise<void> {
   res.json(release);
 }
 
-export async function postRelease(req: Request, res: Response): Promise<void> {
+export async function postRelease(req: any, res: any): Promise<void> {
   const { name, due_date, additional_info, completed_steps } = req.body;
 
   if (!name || typeof name !== 'string' || !name.trim()) {
@@ -51,7 +50,7 @@ export async function postRelease(req: Request, res: Response): Promise<void> {
   res.status(201).json(newRelease);
 }
 
-export async function putRelease(req: Request, res: Response): Promise<void> {
+export async function putRelease(req: any, res: any): Promise<void> {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: 'Invalid release ID' });
@@ -75,7 +74,7 @@ export async function putRelease(req: Request, res: Response): Promise<void> {
   res.json(updated);
 }
 
-export async function patchReleaseSteps(req: Request, res: Response): Promise<void> {
+export async function patchReleaseSteps(req: any, res: any): Promise<void> {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: 'Invalid release ID' });
@@ -98,7 +97,7 @@ export async function patchReleaseSteps(req: Request, res: Response): Promise<vo
   res.json(updated);
 }
 
-export async function removeRelease(req: Request, res: Response): Promise<void> {
+export async function removeRelease(req: any, res: any): Promise<void> {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: 'Invalid release ID' });
