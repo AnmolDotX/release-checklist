@@ -1,5 +1,15 @@
 import { Release, Step, CreateReleaseInput, UpdateReleaseInput } from '../types/release';
 
+export interface HealthData {
+  status: string;
+  database: string;
+  message?: string;
+  error?: string;
+  timestamp: string;
+  uptimeSeconds: number;
+  latencyMs?: number;
+}
+
 function getApiBaseUrl(): string {
   let rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
   rawUrl = rawUrl.trim().replace(/\/+$/, '');
@@ -23,6 +33,17 @@ const DEFAULT_STEPS: Step[] = [
   { id: 'step-6', name: 'Tested thoroughly in demo' },
   { id: 'step-7', name: 'Deployed in production' }
 ];
+
+export async function fetchHealthApi(): Promise<HealthData> {
+  const start = Date.now();
+  const res = await fetch(`${API_BASE}/health`);
+  const elapsed = Date.now() - start;
+  if (!res.ok) {
+    throw new Error(`HTTP Error ${res.status}: ${res.statusText}`);
+  }
+  const data = await res.json();
+  return { ...data, latencyMs: elapsed };
+}
 
 export async function fetchStepsApi(): Promise<Step[]> {
   try {

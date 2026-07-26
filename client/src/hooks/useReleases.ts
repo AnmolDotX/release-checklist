@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   fetchReleasesApi,
   fetchStepsApi,
+  fetchHealthApi,
   createReleaseApi,
   updateReleaseApi,
   deleteReleaseApi
@@ -10,6 +11,7 @@ import { CreateReleaseInput, UpdateReleaseInput } from '../types/release';
 
 export const RELEASES_QUERY_KEY = ['releases'];
 export const STEPS_QUERY_KEY = ['steps'];
+export const HEALTH_QUERY_KEY = ['health'];
 
 export function useReleasesQuery() {
   return useQuery({
@@ -22,6 +24,15 @@ export function useStepsQuery() {
   return useQuery({
     queryKey: STEPS_QUERY_KEY,
     queryFn: fetchStepsApi
+  });
+}
+
+export function useHealthQuery() {
+  return useQuery({
+    queryKey: HEALTH_QUERY_KEY,
+    queryFn: fetchHealthApi,
+    refetchOnWindowFocus: false,
+    retry: 1
   });
 }
 

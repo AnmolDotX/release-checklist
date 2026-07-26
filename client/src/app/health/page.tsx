@@ -1,62 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-
-interface HealthData {
-  status: string;
-  database: string;
-  message?: string;
-  error?: string;
-  timestamp: string;
-  uptimeSeconds: number;
-}
-
-function getApiBaseUrl(): string {
-  let rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-  rawUrl = rawUrl.trim().replace(/\/+$/, '');
-  if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
-    rawUrl = `https://${rawUrl}`;
-  }
-  if (!rawUrl.endsWith('/api')) {
-    rawUrl = `${rawUrl}/api`;
-  }
-  return rawUrl;
-}
+import { useHealthQuery } from '../../hooks/useReleases';
 
 export default function HealthPage() {
-  const [data, setData] = useState<HealthData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [latency, setLatency] = useState<number | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const checkHealth = async () => {
-    setLoading(true);
-    setErrorMsg(null);
-    const start = Date.now();
-    try {
-      const baseUrl = getApiBaseUrl();
-      const res = await fetch(`${baseUrl}/health`);
-      const elapsed = Date.now() - start;
-      setLatency(elapsed);
-
-      if (!res.ok) {
-        throw new Error(`HTTP Error ${res.status}: ${res.statusText}`);
-      }
-
-      const json = await res.json();
-      setData(json);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to connect to backend server');
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    checkHealth();
-  }, []);
+  const { data, isLoading, isError, error, refetch, isFetching } = useHealthQuery();
 
   const isHealthy = data?.status === 'healthy' && data?.database === 'connected';
 
@@ -79,7 +28,7 @@ export default function HealthPage() {
         </div>
 
         {/* Loading Spinner */}
-        {loading ? (
+        {isLoading || isFetching ? (
           <div className="py-16 text-center flex flex-col items-center justify-center gap-3">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
             <p className="text-sm font-medium text-slate-700">Checking system health & database connection...</p>
@@ -87,13 +36,13 @@ export default function HealthPage() {
               ⚡ Free tier Aiven DB spins down due to inactivity. Initial query may take up to 10-15 seconds.
             </p>
           </div>
-        ) : errorMsg ? (
+        ) : isError ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-5 mb-6 text-red-700">
             <div className="flex items-center gap-2 font-bold text-red-800 mb-1">
               <span className="h-3 w-3 rounded-full bg-red-600 inline-block"></span>
               Backend Unreachable
             </div>
-            <p className="text-xs">{errorMsg}</p>
+            <p className="text-xs">{(error as Error)?.message || 'Failed to connect to backend server'}</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -130,14 +79,14 @@ export default function HealthPage() {
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
                 <span className="text-xs font-medium text-slate-500 block mb-1">API Latency</span>
                 <span className="font-semibold text-sm text-slate-800">
-                  ⚡ {latency !== null ? `${latency} ms` : 'N/A'}
+                  ⚡ {data?.latencyMs !== undefined ? `${data.latencyMs} ms` : 'N/A'}
                 </span>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg">
                 <span className="text-xs font-medium text-slate-500 block mb-1">Server Uptime</span>
                 <span className="font-semibold text-sm text-slate-800">
-                  ⏱️ {data?.uptimeSeconds ? `${data.uptimeSeconds} seconds` : 'N/A'}
+                  ⏱️ {data?.uptimeSeconds !== undefined ? `${data.uptimeSeconds} seconds` : 'N/A'}
                 </span>
               </div>
             </div>
@@ -154,11 +103,11 @@ export default function HealthPage() {
         {/* Action Bar */}
         <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
           <button
-            onClick={checkHealth}
-            disabled={loading}
+            onClick={() => refetch()}
+            disabled={isLoading || isFetching}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
           >
-            {loading ? 'Re-checking...' : '🔄 Run Health Check Now'}
+            {isFetching ? 'Re-checking...' : '🔄 Run Health Check Now'}
           </button>
           <span className="text-xs text-slate-400">
             Last checked: {data?.timestamp ? new Date(data.timestamp).toLocaleTimeString() : 'N/A'}
