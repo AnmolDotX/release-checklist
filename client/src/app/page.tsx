@@ -17,7 +17,7 @@ import { formatDateInput } from '../utils/formatters';
 import { Release } from '../types/release';
 
 export default function Home() {
-  const { data: releases = [], isLoading: isLoadingReleases } = useReleasesQuery();
+  const { data: releases = [], isLoading: isLoadingReleases, isError: isReleasesError, refetch: refetchReleases } = useReleasesQuery();
   const { data: steps = [] } = useStepsQuery();
 
   const createMutation = useCreateReleaseMutation();
@@ -93,8 +93,8 @@ export default function Home() {
             showNotification('Release updated successfully!');
             setCurrentView('list');
           },
-          onError: () => {
-            showNotification('Failed to update release.', 'error');
+          onError: (err: any) => {
+            showNotification(err.message || 'Failed to update release.', 'error');
           }
         }
       );
@@ -104,8 +104,8 @@ export default function Home() {
           showNotification('Release created successfully!');
           setCurrentView('list');
         },
-        onError: () => {
-          showNotification('Failed to create release.', 'error');
+        onError: (err: any) => {
+          showNotification(err.message || 'Failed to create release.', 'error');
         }
       });
     }
@@ -122,8 +122,8 @@ export default function Home() {
           setCurrentView('list');
         }
       },
-      onError: () => {
-        showNotification('Failed to delete release.', 'error');
+      onError: (err: any) => {
+        showNotification(err.message || 'Failed to delete release.', 'error');
       }
     });
   };
@@ -140,10 +140,25 @@ export default function Home() {
         {isLoadingReleases ? (
           <div className="p-12 text-center text-slate-500 text-sm flex flex-col items-center justify-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            <p className="font-medium text-slate-700">Loading releases...</p>
+            <p className="font-medium text-slate-700">Loading releases from database...</p>
             <p className="text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-md border border-amber-200">
               ⚡ Note: Initial load may take up to 10-15 seconds as free tier Aiven DB spins down due to inactivity.
             </p>
+          </div>
+        ) : isReleasesError ? (
+          <div className="p-12 text-center text-slate-700 text-sm flex flex-col items-center justify-center gap-3">
+            <div className="text-red-600 font-bold text-base flex items-center gap-2">
+              <span>⚠️ Database Connection Error</span>
+            </div>
+            <p className="text-xs text-slate-600 max-w-md">
+              Could not connect to the database. If using free-tier Aiven DB, it may take 10-15 seconds to wake up from inactivity.
+            </p>
+            <button
+              onClick={() => refetchReleases()}
+              className="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+            >
+              🔄 Retry Connection Now
+            </button>
           </div>
         ) : currentView === 'list' ? (
           <ReleaseList
