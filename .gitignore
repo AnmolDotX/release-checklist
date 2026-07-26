@@ -1,0 +1,15 @@
+# OS / Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node modules / Build outputs in subdirectories
+**/node_modules/
+**/dist/
+**/.next/
+**/.env
+**/.env.local
+./server/node_modules
+./client/node_modules
+./server/dist
