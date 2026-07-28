@@ -1,17 +1,16 @@
 -- Initialize Database Schema for Release Checklist Tool
 
-CREATE DATABASE IF NOT EXISTS release_check;
-USE release_check;
+
 
 CREATE TABLE IF NOT EXISTS releases (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  due_date DATETIME NOT NULL,
+  due_date TIMESTAMP NOT NULL,
   additional_info TEXT,
-  completed_steps JSON NOT NULL,
+  completed_steps JSONB NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Seed default initial release records
 INSERT INTO releases (name, due_date, additional_info, completed_steps) VALUES

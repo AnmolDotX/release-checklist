@@ -1,18 +1,19 @@
 services:
-  mysql:
-    image: mysql:8.4
+  postgres:
+    image: postgres:15-alpine
     container_name: release_check_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: release_check
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: release_check
     ports:
-      - "3306:3306"
+      - "5434:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d release_check"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -27,15 +28,15 @@ services:
       - "8000:8000"
     environment:
       PORT: 8000
-      DATABASE_URL: mysql://root:rootpassword@mysql:3306/release_check
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: rootpassword
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/release_check
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgrespassword
       DB_NAME: release_check
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
 
 volumes:
-  mysql_data:
+  postgres_data:
